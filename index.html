@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Java с наставником-практиком · Индивидуальные занятия</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0b10;
+  --surface:#12131a;
+  --surface-2:#1a1c26;
+  --text:#e8e9ee;
+  --muted:#8a8d9a;
+  --accent:#ff8a3d;
+  --accent-2:#f89820;
+  --violet:#7c3aed;
+  --border:rgba(255,255,255,0.08);
+  --radius:20px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:auto}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',system-ui,sans-serif;
+  overflow-x:hidden;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+section{position:relative;z-index:1}
+nav,footer{position:relative;z-index:2}
+
+/* ---------- BACKGROUND CODE CANVAS ---------- */
+#bg-canvas{
+  position:fixed;
+  top:0;left:0;
+  width:100vw;
+  height:100vh;
+  z-index:0;
+  pointer-events:none;
+  display:block;
+}
+@media print{#bg-canvas{display:none}}
+@media (prefers-reduced-motion: reduce){
+  #bg-canvas{display:none}
+}
+
+/* ---------- NAV ---------- */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:16px 0;
+  transition:background .3s, backdrop-filter .3s, border-color .3s;
+  border-bottom:1px solid transparent;
+}
+.nav.scrolled{
+  background:rgba(10,11,16,0.75);
+  backdrop-filter:blur(20px);
+  border-bottom-color:var(--border);
+}
+.nav-inner{display:flex;align-items:center;justify-content:space-between}
+.logo{font-weight:800;font-size:1.1rem;letter-spacing:-0.02em}
+.logo span{color:var(--accent)}
+.nav-links{display:flex;gap:28px;font-size:0.9rem;color:var(--muted)}
+.nav-links a{color:inherit;text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 24px;border-radius:999px;
+  font-weight:600;font-size:0.95rem;
+  text-decoration:none;cursor:pointer;border:none;
+  transition:transform .2s, box-shadow .3s, background .3s;
+  white-space:nowrap;
+}
+.btn-primary{
+  background:linear-gradient(135deg,#ff8a3d,#f89820);
+  color:#1a0d00;
+  box-shadow:0 8px 32px rgba(255,138,61,0.25);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(255,138,61,0.4)}
+.btn-ghost{
+  background:transparent;color:var(--text);
+  border:1px solid var(--border);
+}
+.btn-ghost:hover{background:var(--surface-2)}
+
+/* ---------- HERO ---------- */
+.hero{
+  min-height:100vh;
+  display:flex;align-items:center;
+  padding:140px 0 80px;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-20%;right:-10%;
+  width:700px;height:700px;
+  background:radial-gradient(circle, rgba(255,138,61,0.15), transparent 65%);
+  filter:blur(40px);pointer-events:none;
+}
+.hero::after{
+  content:'';position:absolute;bottom:-30%;left:-15%;
+  width:600px;height:600px;
+  background:radial-gradient(circle, rgba(124,58,237,0.12), transparent 65%);
+  filter:blur(40px);pointer-events:none;
+}
+.hero-grid{
+  display:grid;grid-template-columns:1.1fr 0.9fr;
+  gap:60px;align-items:center;position:relative;z-index:1;
+}
+.overline{
+  display:inline-flex;align-items:center;gap:10px;
+  font-size:0.8rem;color:var(--muted);
+  padding:8px 16px;border-radius:999px;
+  background:rgba(18,19,26,0.8);border:1px solid var(--border);
+  margin-bottom:24px;
+  backdrop-filter:blur(10px);
+}
+.overline-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 12px #22c55e}
+.hero h1{
+  font-size:clamp(2.2rem, 5vw, 4rem);
+  font-weight:800;line-height:1.05;letter-spacing:-0.03em;
+  margin-bottom:24px;
+}
+.hero h1 em{
+  font-style:normal;
+  background:linear-gradient(135deg,#ff8a3d,#f89820 50%,#7c3aed);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero p.lead{
+  font-size:1.15rem;color:var(--muted);
+  max-width:520px;margin-bottom:36px;
+}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:48px}
+.metrics{display:flex;gap:40px;flex-wrap:wrap;padding-top:32px;border-top:1px solid var(--border)}
+.metric-num{font-size:2rem;font-weight:800;letter-spacing:-0.03em;color:var(--accent)}
+.metric-label{font-size:0.85rem;color:var(--muted);margin-top:4px}
+
+/* code card */
+.code-card{
+  background:linear-gradient(160deg,rgba(22,23,31,0.95),rgba(14,15,21,0.95));
+  border:1px solid var(--border);
+  border-radius:24px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,138,61,0.08) inset;
+  overflow:hidden;position:relative;
+  transform-style:preserve-3d;
+  backdrop-filter:blur(10px);
+}
+.code-head{
+  display:flex;gap:8px;padding:14px 18px;
+  background:rgba(255,255,255,0.02);
+  border-bottom:1px solid var(--border);
+}
+.dot{width:11px;height:11px;border-radius:50%}
+.dot.r{background:#ff5f56}.dot.y{background:#ffbd2e}.dot.g{background:#27c93f}
+.code-body{
+  padding:24px;font-family:'JetBrains Mono',monospace;
+  font-size:0.85rem;line-height:1.75;overflow-x:auto;
+}
+.code-body .kw{color:#c586c0}
+.code-body .cls{color:#4ec9b0}
+.code-body .fn{color:#dcdcaa}
+.code-body .str{color:#ce9178}
+.code-body .cm{color:#6a9955}
+.code-body .num{color:#b5cea8}
+.code-body .acc{color:var(--accent)}
+
+/* ---------- SECTION TITLES ---------- */
+.sec{padding:120px 0}
+.sec-label{
+  font-size:0.85rem;color:var(--accent);font-weight:600;
+  letter-spacing:0.08em;text-transform:uppercase;margin-bottom:16px;
+}
+.sec-title{
+  font-size:clamp(1.8rem, 3.5vw, 2.8rem);
+  font-weight:800;letter-spacing:-0.03em;
+  line-height:1.15;margin-bottom:20px;max-width:760px;
+}
+.sec-sub{color:var(--muted);font-size:1.1rem;max-width:600px;margin-bottom:60px}
+
+/* ---------- PROBLEM ---------- */
+.problem-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.problem-card{
+  padding:32px;border-radius:var(--radius);
+  background:rgba(18,19,26,0.85);border:1px solid var(--border);
+  transition:transform .3s, border-color .3s;
+  backdrop-filter:blur(10px);
+}
+.problem-card:hover{transform:translateY(-4px);border-color:rgba(255,138,61,0.3)}
+.problem-icon{
+  width:48px;height:48px;border-radius:12px;
+  background:rgba(255,138,61,0.1);
+  display:grid;place-items:center;
+  font-size:1.4rem;margin-bottom:20px;
+}
+.problem-card h3{font-size:1.15rem;margin-bottom:10px;font-weight:700}
+.problem-card p{color:var(--muted);font-size:0.95rem}
+
+/* ---------- STICKY APPROACH ---------- */
+.approach{height:300vh;position:relative}
+.approach-sticky{
+  position:sticky;top:0;height:100vh;
+  display:flex;align-items:center;overflow:hidden;
+}
+.approach-inner{
+  display:grid;grid-template-columns:1fr 1fr;gap:80px;
+  align-items:center;width:100%;
+}
+.approach-left h2{
+  font-size:clamp(1.8rem, 3.5vw, 2.6rem);
+  font-weight:800;letter-spacing:-0.03em;line-height:1.15;
+}
+.approach-left p{color:var(--muted);margin-top:20px;font-size:1.05rem}
+.approach-right{position:relative;height:400px}
+.approach-item{
+  position:absolute;inset:0;
+  padding:40px;border-radius:24px;
+  background:linear-gradient(160deg,rgba(22,23,31,0.95),rgba(14,15,21,0.95));
+  border:1px solid var(--border);
+  opacity:0;transform:translateY(40px) scale(0.96);
+  display:flex;flex-direction:column;justify-content:center;
+  backdrop-filter:blur(10px);
+}
+.approach-item .num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.85rem;color:var(--accent);margin-bottom:20px;
+}
+.approach-item h3{font-size:1.5rem;font-weight:700;margin-bottom:16px;letter-spacing:-0.02em}
+.approach-item p{color:var(--muted);font-size:1rem}
+.approach-progress{
+  display:flex;gap:8px;margin-top:40px;
+}
+.approach-progress span{
+  height:3px;flex:1;background:var(--surface-2);border-radius:2px;position:relative;overflow:hidden;
+}
+
+/* ---------- PROGRAM TIMELINE ---------- */
+.timeline{position:relative;padding-left:40px;max-width:800px}
+.timeline::before{
+  content:'';position:absolute;left:11px;top:8px;bottom:8px;
+  width:2px;background:var(--surface-2);
+}
+.timeline-line{
+  position:absolute;left:11px;top:8px;width:2px;
+  background:linear-gradient(180deg,var(--accent),var(--violet));
+  height:0;transition:height .1s;
+}
+.t-item{position:relative;padding-bottom:48px}
+.t-item::before{
+  content:'';position:absolute;left:-35px;top:6px;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--surface-2);
+  transition:border-color .4s, box-shadow .4s;
+  z-index:1;
+}
+.t-item.active::before{border-color:var(--accent);box-shadow:0 0 20px rgba(255,138,61,0.5)}
+.t-item h3{font-size:1.25rem;font-weight:700;margin-bottom:8px;letter-spacing:-0.01em}
+.t-item p{color:var(--muted);font-size:0.98rem}
+.t-tag{
+  display:inline-block;font-size:0.75rem;
+  padding:3px 10px;border-radius:999px;
+  background:rgba(255,138,61,0.1);color:var(--accent);
+  font-family:'JetBrains Mono',monospace;
+  margin-bottom:12px;
+}
+
+/* ---------- ABOUT ---------- */
+.about-grid{display:grid;grid-template-columns:0.9fr 1.1fr;gap:60px;align-items:center}
+.about-photo{
+  aspect-ratio:4/5;border-radius:24px;
+  background:linear-gradient(160deg,#1a1c26,#0e0f15);
+  border:1px solid var(--border);
+  position:relative;overflow:hidden;
+}
+.about-photo::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 30% 30%, rgba(255,138,61,0.15), transparent 60%);
+  z-index:1;
+  pointer-events:none;
+}
+.about-photo img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 25%;
+  display:block;
+  z-index:0;
+}
+.about-list{list-style:none;margin-top:28px}
+.about-list li{
+  padding:16px 0;border-bottom:1px solid var(--border);
+  display:flex;gap:16px;align-items:flex-start;
+}
+.about-list li::before{
+  content:'→';color:var(--accent);font-weight:700;flex-shrink:0;
+}
+
+/* ---------- SITES SERVICE ---------- */
+.sites{
+  padding:80px;border-radius:32px;
+  background:linear-gradient(160deg,rgba(22,23,31,0.9),rgba(14,15,21,0.9));
+  border:1px solid var(--border);
+  position:relative;overflow:hidden;
+  backdrop-filter:blur(10px);
+}
+.sites::before{
+  content:'';position:absolute;top:-100px;right:-100px;
+  width:400px;height:400px;
+  background:radial-gradient(circle, rgba(124,58,237,0.2), transparent 65%);
+  filter:blur(40px);
+  pointer-events:none;
+}
+.sites-inner{position:relative;display:grid;grid-template-columns:1.2fr 0.8fr;gap:60px;align-items:center}
+.sites h2{font-size:clamp(1.6rem, 3vw, 2.2rem);font-weight:800;letter-spacing:-0.03em;line-height:1.2;margin-bottom:20px}
+.sites p{color:var(--muted);font-size:1.05rem;margin-bottom:32px}
+.sites-tags{display:flex;flex-wrap:wrap;gap:10px}
+.tag{
+  padding:8px 16px;border-radius:999px;
+  background:var(--surface-2);border:1px solid var(--border);
+  font-size:0.85rem;color:var(--muted);
+}
+
+/* ---------- TESTIMONIALS ---------- */
+.tstm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tstm{
+  padding:32px;border-radius:var(--radius);
+  background:rgba(18,19,26,0.85);border:1px solid var(--border);
+  display:flex;flex-direction:column;gap:20px;
+  backdrop-filter:blur(10px);
+}
+.tstm-text{font-size:0.98rem;line-height:1.6}
+.tstm-author{display:flex;align-items:center;gap:12px;margin-top:auto}
+.tstm-avatar{
+  width:40px;height:40px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--violet));
+  display:grid;place-items:center;font-weight:700;color:#fff;font-size:0.9rem;
+  flex-shrink:0;
+}
+.tstm-name{font-weight:600;font-size:0.9rem}
+.tstm-role{color:var(--muted);font-size:0.8rem}
+
+/* ---------- PRICING ---------- */
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.price-card{
+  padding:40px 32px;border-radius:24px;
+  background:rgba(18,19,26,0.85);border:1px solid var(--border);
+  display:flex;flex-direction:column;
+  transition:transform .3s, border-color .3s;
+  backdrop-filter:blur(10px);
+}
+.price-card:hover{transform:translateY(-6px)}
+.price-card.featured{
+  background:linear-gradient(160deg,rgba(26,28,38,0.95),rgba(18,19,26,0.95));
+  border-color:rgba(255,138,61,0.4);
+  box-shadow:0 30px 80px rgba(255,138,61,0.15);
+  position:relative;
+}
+.price-badge{
+  position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+  padding:6px 16px;border-radius:999px;
+  background:linear-gradient(135deg,#ff8a3d,#f89820);
+  color:#1a0d00;font-size:0.75rem;font-weight:700;
+  letter-spacing:0.05em;text-transform:uppercase;
+  white-space:nowrap;
+}
+.price-name{font-size:0.95rem;color:var(--muted);margin-bottom:12px}
+.price-value{font-size:2.4rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px}
+.price-value small{font-size:1rem;color:var(--muted);font-weight:500}
+.price-desc{color:var(--muted);font-size:0.9rem;margin-bottom:28px;padding-bottom:28px;border-bottom:1px solid var(--border)}
+.price-feats{list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:32px;flex:1}
+.price-feats li{display:flex;gap:10px;font-size:0.92rem;color:var(--muted)}
+.price-feats li::before{content:'✓';color:var(--accent);font-weight:700;flex-shrink:0}
+
+/* ---------- FAQ ---------- */
+.faq{max-width:800px;margin:0 auto}
+.faq-item{
+  border-bottom:1px solid var(--border);
+  padding:24px 0;cursor:pointer;
+}
+.faq-q{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:20px;font-weight:600;font-size:1.05rem;
+}
+.faq-q::after{
+  content:'+';font-size:1.4rem;color:var(--accent);
+  transition:transform .3s;font-weight:400;
+  flex-shrink:0;
+}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{
+  max-height:0;overflow:hidden;
+  transition:max-height .4s ease, padding .3s;
+  color:var(--muted);font-size:0.95rem;line-height:1.65;
+}
+.faq-item.open .faq-a{max-height:400px;padding-top:16px}
+
+/* ---------- FINAL CTA ---------- */
+.cta{
+  padding:120px 0;text-align:center;
+  position:relative;overflow:hidden;
+}
+.cta::before{
+  content:'';position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:900px;height:900px;
+  background:radial-gradient(circle, rgba(255,138,61,0.12), transparent 60%);
+  pointer-events:none;
+}
+.cta h2{
+  font-size:clamp(2rem, 4vw, 3.2rem);
+  font-weight:800;letter-spacing:-0.03em;
+  line-height:1.1;margin-bottom:24px;position:relative;
+}
+.cta p{color:var(--muted);font-size:1.1rem;margin-bottom:40px;position:relative}
+.cta-buttons{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative}
+
+/* ---------- FOOTER ---------- */
+footer{
+  padding:40px 0;border-top:1px solid var(--border);
+  color:var(--muted);font-size:0.85rem;
+  background:rgba(10,11,16,0.6);
+  backdrop-filter:blur(10px);
+}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+
+/* ---------- REVEAL ---------- */
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .8s, transform .8s}
+.reveal.in{opacity:1;transform:translateY(0)}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:900px){
+  .nav-links{display:none}
+  .hero{padding:110px 0 60px}
+  .hero-grid{grid-template-columns:1fr;gap:48px}
+  .problem-grid,.tstm-grid,.price-grid{grid-template-columns:1fr}
+  .approach{height:auto}
+  .approach-sticky{position:relative;height:auto;padding:80px 0}
+  .approach-inner{grid-template-columns:1fr;gap:40px}
+  .approach-right{height:auto;display:flex;flex-direction:column;gap:16px}
+  .approach-item{position:relative;opacity:1;transform:none;padding:32px}
+  .about-grid{grid-template-columns:1fr;gap:40px}
+  .about-photo{max-width:360px;margin:0 auto;width:100%}
+  .sites{padding:40px 24px}
+  .sites-inner{grid-template-columns:1fr;gap:32px}
+  .sec{padding:80px 0}
+  .metrics{gap:24px}
+  .code-card{max-width:100%}
+  .code-body{font-size:0.78rem;padding:18px}
+}
+
+@media (max-width:500px){
+  .wrap{padding:0 16px}
+  .hero{padding:100px 0 48px}
+  .hero p.lead{font-size:1.02rem}
+  .metric-num{font-size:1.6rem}
+  .metrics{gap:16px 20px}
+  .metric-label{font-size:0.78rem}
+  .sec{padding:60px 0}
+  .sec-title{margin-bottom:14px}
+  .sec-sub{margin-bottom:40px;font-size:1rem}
+  .code-body{font-size:0.72rem;line-height:1.65;padding:16px}
+  .price-card{padding:28px 22px}
+  .price-value{font-size:2rem}
+  .sites{padding:32px 20px;border-radius:24px}
+  .timeline{padding-left:32px}
+  .timeline::before{left:9px}
+  .timeline-line{left:9px}
+  .t-item::before{left:-27px;width:12px;height:12px}
+  .t-item{padding-bottom:36px}
+  .approach-item{padding:26px}
+  .approach-item h3{font-size:1.25rem}
+  .tstm{padding:24px}
+  .problem-card{padding:24px}
+  .btn{padding:11px 20px;font-size:0.9rem}
+  .cta-buttons{flex-direction:column;align-items:stretch}
+  .cta-buttons .btn{justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<!-- BACKGROUND CODE CANVAS -->
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <div class="logo">Java<span>·</span>Mentor</div>
+    <div class="nav-links">
+      <a href="#approach">Подход</a>
+      <a href="#program">Программа</a>
+      <a href="#sites">Сайты</a>
+      <a href="#pricing">Цены</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <a href="#cta" class="btn btn-primary">Записаться</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="overline">
+        <span class="overline-dot"></span>
+        Свободно 2 места на сентябрь
+      </div>
+      <h1>Java-разработка с <em>наставником-практиком</em> из финтеха</h1>
+      <p class="lead">
+        Индивидуальные занятия без воды. Фундамент математика-программиста,
+        5 лет преподавания и 3 года коммерческой разработки банковского приложения —
+        всё, чтобы ты дошёл до оффера.
+      </p>
+      <div class="hero-ctas">
+        <a href="#cta" class="btn btn-primary">Пробное занятие →</a>
+        <a href="#program" class="btn btn-ghost">Смотреть программу</a>
+      </div>
+      <div class="metrics">
+        <div>
+          <div class="metric-num" data-count="5">0</div>
+          <div class="metric-label">лет преподавания</div>
+        </div>
+        <div>
+          <div class="metric-num" data-count="3">0</div>
+          <div class="metric-label">года в разработке</div>
+        </div>
+        <div>
+          <div class="metric-num" data-count="50" data-suffix="+">0</div>
+          <div class="metric-label">учеников</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-card" id="heroCard">
+      <div class="code-head">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      </div>
+      <div class="code-body">
+        <div><span class="cm">// Твой путь начинается здесь</span></div>
+        <div><span class="kw">public class</span> <span class="cls">FutureDeveloper</span> {</div>
+        <div>&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">Mentor</span> mentor;</div>
+        <div>&nbsp;&nbsp;<span class="kw">private int</span> motivation = <span class="num">100</span>;</div>
+        <div><br></div>
+        <div>&nbsp;&nbsp;<span class="kw">public void</span> <span class="fn">study</span>() {</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;mentor.<span class="fn">teach</span>(<span class="str">"Java"</span>);</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;mentor.<span class="fn">teach</span>(<span class="str">"Spring"</span>);</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;mentor.<span class="fn">teach</span>(<span class="str">"SQL"</span>);</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="acc">offer</span>.<span class="fn">receive</span>();</div>
+        <div>&nbsp;&nbsp;}</div>
+        <div>}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="sec">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-label">Реальность</div>
+      <h2 class="sec-title">Почему большинство бросают Java на втором месяце</h2>
+      <p class="sec-sub">Это не про способности. Это про подход, который тебе продали.</p>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-card reveal">
+        <div class="problem-icon">📺</div>
+        <h3>Курсы-конвейеры</h3>
+        <p>Записанные лекции, тысячи студентов, никто не следит за твоим прогрессом. Ты просто «смотришь», а не «делаешь».</p>
+      </div>
+      <div class="problem-card reveal">
+        <div class="problem-icon">🎓</div>
+        <h3>Теория без практики</h3>
+        <p>Паттерны, SOLID, архитектура — а на собеседовании просят написать код. Знания есть, а руки не помнят.</p>
+      </div>
+      <div class="problem-card reveal">
+        <div class="problem-icon">🌊</div>
+        <h3>Информационная перегрузка</h3>
+        <p>Не понятно, что учить первым, что — потом, а что вообще устарело. Мозг отключается от хаоса.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- APPROACH (STICKY) -->
+<section class="approach" id="approach">
+  <div class="approach-sticky">
+    <div class="wrap approach-inner">
+      <div class="approach-left">
+        <div class="sec-label">Мой подход</div>
+        <h2>Три принципа, которые меняют всё</h2>
+        <p>Я не «даю материал». Я строю систему, в которой ты не бросишь и дойдёшь до результата.</p>
+        <div class="approach-progress">
+          <span id="prog1"></span>
+          <span id="prog2"></span>
+          <span id="prog3"></span>
+        </div>
+      </div>
+      <div class="approach-right">
+        <div class="approach-item" data-idx="0">
+          <div class="num">01 / Персональный трек</div>
+          <h3>Программа строится под тебя</h3>
+          <p>Мы начинаем с диагностики: что ты знаешь, как мыслишь, куда хочешь. Дальше я собираю индивидуальный маршрут. Никаких «все идут по одной программе».</p>
+        </div>
+        <div class="approach-item" data-idx="1">
+          <div class="num">02 / Практика с первого дня</div>
+          <h3>80% времени — ты пишешь код</h3>
+          <p>Минимум слайдов. Мы разбираем реальные задачи из банковской разработки: как работает транзакция, как устроен сервис, как читать чужой код.</p>
+        </div>
+        <div class="approach-item" data-idx="2">
+          <div class="num">03 / Поддержка между занятиями</div>
+          <h3>Не бросаю после урока</h3>
+          <p>Чат со мной между занятиями: вопросы по ДЗ, разбор ошибок, помощь с пет-проектом. Ты не остаёшься один на один с багами.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROGRAM -->
+<section class="sec" id="program">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-label">Программа</div>
+      <h2 class="sec-title">От синтаксиса до оффера — по шагам</h2>
+      <p class="sec-sub">Каждый блок — с практикой, домашкой и разбором. Никакой воды.</p>
+    </div>
+    <div class="timeline" id="timeline">
+      <div class="timeline-line" id="timelineLine"></div>
+      <div class="t-item">
+        <span class="t-tag">1-4 неделя</span>
+        <h3>Основы языка и синтаксис</h3>
+        <p>Переменные, типы, условия, циклы, методы, массивы. Пишем первые мини-программы. Привыкаем к IDE и отладке.</p>
+      </div>
+      <div class="t-item">
+        <span class="t-tag">5-8 неделя</span>
+        <h3>ООП и коллекции</h3>
+        <p>Классы, наследование, полиморфизм, интерфейсы. List, Map, Set. Понимаем, как думать объектами, а не процедурами.</p>
+      </div>
+      <div class="t-item">
+        <span class="t-tag">9-12 неделя</span>
+        <h3>Stream API, многопоточность, JVM</h3>
+        <p>Функциональный стиль, лямбды, работа с потоками. Основы многопоточки. Как устроена память и garbage collector.</p>
+      </div>
+      <div class="t-item">
+        <span class="t-tag">13-18 неделя</span>
+        <h3>Spring Boot, SQL, REST</h3>
+        <p>Пишем настоящий backend: контроллеры, сервисы, репозитории, БД. Собираем pet-проект, который не стыдно показать.</p>
+      </div>
+      <div class="t-item">
+        <span class="t-tag">19-24 неделя</span>
+        <h3>Подготовка к собеседованию</h3>
+        <p>Алгоритмы, leetcode, вопросы по Java Core, разбор реальных кейсов с собеседований в банки и продуктовые компании. Резюме + мок-интервью.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="sec">
+  <div class="wrap about-grid">
+    <div class="about-photo reveal">
+      <img src="elvira.jpg" alt="Эльвира Аннаева">
+    </div>
+    <div class="reveal">
+      <div class="sec-label">Обо мне</div>
+      <h2 class="sec-title">Меня зовут Эльвира Аннаева, я математик-программист, который объясняет, а не вещает</h2>
+      <p style="color:var(--muted);font-size:1.05rem">
+        Я прошла путь от университетской скамьи до продакшена банковского приложения.
+        И всё это время параллельно учила других — потому что мне нравится, когда у человека
+        в голове всё складывается в единый пазл.
+      </p>
+      <ul class="about-list">
+        <li>Высшее образование «Математика и программирование»</li>
+        <li>5 лет онлайн-преподавания — больше 50 учеников</li>
+        <li>3 года коммерческой разработки банковского приложения</li>
+        <li>Собираю сайты и лендинги с AI-инструментами — могу научить и этому</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SITES SERVICE -->
+<section class="sec" id="sites">
+  <div class="wrap">
+    <div class="sites reveal">
+      <div class="sites-inner">
+        <div>
+          <div class="sec-label">Вторая услуга</div>
+          <h2>Нужен лендинг или небольшой сайт? Соберу под ключ</h2>
+          <p>
+            Современные сайты с анимациями, адаптивом и деплоем. Использую связку
+            AI-генерации + ручную доработку — быстро, качественно, без переплат за студии.
+            Идеально для экспертов, малого бизнеса и IT-продуктов.
+          </p>
+          <a href="#cta" class="btn btn-primary">Обсудить проект →</a>
+        </div>
+        <div class="sites-tags">
+          <span class="tag">Лендинги</span>
+          <span class="tag">Сайт-визитка</span>
+          <span class="tag">Landing под запуск</span>
+          <span class="tag">Scroll-анимации</span>
+          <span class="tag">Адаптив</span>
+          <span class="tag">Деплой</span>
+          <span class="tag">SEO-база</span>
+          <span class="tag">Подключение домена</span>
+          <span class="tag">Telegram-боты</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="sec">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-label">Отзывы</div>
+      <h2 class="sec-title">Что говорят ученики</h2>
+    </div>
+    <div class="tstm-grid">
+      <div class="tstm reveal">
+        <div class="tstm-text">«До занятий я год пытался учить Java по видео и не мог написать даже простой класс. Через 4 месяца сделал pet-проект, а через 7 — вышел на первую работу.»</div>
+        <div class="tstm-author">
+          <div class="tstm-avatar">А</div>
+          <div>
+            <div class="tstm-name">Алексей</div>
+            <div class="tstm-role">Junior Java Developer</div>
+          </div>
+        </div>
+      </div>
+      <div class="tstm reveal">
+        <div class="tstm-text">«Больше всего зашёл подход: не просто "вот теория", а "вот задача из реального проекта". Это мотивирует в разы сильнее.»</div>
+        <div class="tstm-author">
+          <div class="tstm-avatar">М</div>
+          <div>
+            <div class="tstm-name">Мария</div>
+            <div class="tstm-role">Студентка, перешла из QA</div>
+          </div>
+        </div>
+      </div>
+      <div class="tstm reveal">
+        <div class="tstm-text">«Поддержка в чате между занятиями — то, чего мне не хватало на курсах. Когда застрял в 11 вечера, написала — утром уже был ответ с разбором.»</div>
+        <div class="tstm-author">
+          <div class="tstm-avatar">Д</div>
+          <div>
+            <div class="tstm-name">Дмитрий</div>
+            <div class="tstm-role">Backend-разработчик</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="sec" id="pricing">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-label">Форматы</div>
+      <h2 class="sec-title">Выбери свой темп</h2>
+      <p class="sec-sub">Все занятия 1-на-1, онлайн, с записью и домашкой.</p>
+    </div>
+    <div class="price-grid">
+      <div class="price-card reveal">
+        <div class="price-name">Пробное занятие</div>
+        <div class="price-value">0 ₽</div>
+        <div class="price-desc">Знакомимся, диагностируем уровень, строим план</div>
+        <ul class="price-feats">
+          <li>60 минут онлайн</li>
+          <li>Разбор текущего уровня</li>
+          <li>Персональный план обучения</li>
+        </ul>
+        <a href="#cta" class="btn btn-ghost">Записаться</a>
+      </div>
+      <div class="price-card featured reveal">
+        <div class="price-badge">Популярно</div>
+        <div class="price-name">Пакет 8 занятий</div>
+        <div class="price-value">— ₽ <small>/ пакет</small></div>
+        <div class="price-desc">Оптимальный ритм — 2 занятия в неделю</div>
+        <ul class="price-feats">
+          <li>8 занятий по 60 минут</li>
+          <li>Домашка с проверкой</li>
+          <li>Чат поддержки между уроками</li>
+          <li>Записи всех занятий</li>
+          <li>Разбор пет-проекта</li>
+        </ul>
+        <a href="#cta" class="btn btn-primary">Выбрать пакет</a>
+      </div>
+      <div class="price-card reveal">
+        <div class="price-name">Интенсив до оффера</div>
+        <div class="price-value">— ₽ <small>/ мес</small></div>
+        <div class="price-desc">Для тех, кому нужен быстрый результат</div>
+        <ul class="price-feats">
+          <li>3-4 занятия в неделю</li>
+          <li>Приоритетная поддержка</li>
+          <li>Мок-интервью</li>
+          <li>Помощь с резюме и откликами</li>
+        </ul>
+        <a href="#cta" class="btn btn-ghost">Обсудить</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec" id="faq">
+  <div class="wrap">
+    <div class="reveal" style="text-align:center;margin-bottom:60px">
+      <div class="sec-label">FAQ</div>
+      <h2 class="sec-title" style="margin:0 auto">Частые вопросы</h2>
+    </div>
+    <div class="faq">
+      <div class="faq-item">
+        <div class="faq-q">Нужна ли база в программировании?</div>
+        <div class="faq-a">Нет. Мы можем начать с нуля. Но если база уже есть — проведу диагностику и построим маршрут с того места, где ты находишься.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Как проходят занятия?</div>
+        <div class="faq-a">Онлайн, в Zoom/Google Meet с шарингом экрана и кодом. Ты пишешь код на занятии, я разбираю и подсказываю. Все занятия записываются.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Сколько нужно заниматься, чтобы найти работу?</div>
+        <div class="faq-a">При 2 занятиях в неделю и выполнении домашки — реалистично 6-9 месяцев с нуля до junior-позиции. Зависит от стартовой точки и вовлечённости.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Ты делаешь сайты с нуля или через конструкторы?</div>
+        <div class="faq-a">Собираю современный код (HTML/CSS/JS), использую AI-инструменты для скорости, дорабатываю вручную. Деплою на Vercel/Netlify/свой хостинг. Никаких Tilda-однодневок, если только ты сама не попросишь.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Что если я не смогу ходить на занятие?</div>
+        <div class="faq-a">Предупреди минимум за 12 часов — перенесём без потери. Отмены «в последний момент» сгорают.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="cta" id="cta">
+  <div class="wrap">
+    <h2>Готов(а) начать? Первое занятие — бесплатно</h2>
+    <p>60 минут, диагностика уровня и персональный план. Без обязательств.</p>
+    <div class="cta-buttons">
+      <a href="https://t.me/ТВОЙ_НИК" class="btn btn-primary">Написать в Telegram →</a>
+      <a href="mailto:твоя@почта.ru" class="btn btn-ghost">Написать на почту</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-inner">
+    <div>© 2026 Java·Mentor. Индивидуальные занятия и разработка сайтов.</div>
+    <div>Telegram · Email · GitHub</div>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+/* ============================================================
+   1. BACKGROUND CODE (parallax + cursor glow)
+   ============================================================ */
+(function initBackgroundCode(){
+  const canvas = document.getElementById('bg-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  const JAVA = `public class Developer {
+    private final String name;
+    private int experience;
+    private boolean coffeeMode = true;
+
+    public Developer(String name) {
+        this.name = name;
+        this.experience = 0;
+    }
+
+    public void startDay() {
+        brewCoffee();
+        openIDE();
+        reviewTasks();
+    }
+
+    public void code() {
+        while (alive) {
+            think();
+            write();
+            test();
+            refactor();
+        }
+    }
+}
+
+@Service
+public class UserService {
+    @Autowired
+    private UserRepository repository;
+
+    public User findById(Long id) {
+        return repository.findById(id)
+            .orElseThrow();
+    }
+
+    @Transactional
+    public void create(UserDto dto) {
+        User user = new User(dto);
+        repository.save(user);
+    }
+}
+
+@RestController
+@RequestMapping("/api/v1")
+public class UserController {
+    private final UserService service;
+
+    public UserController(UserService s) {
+        this.service = s;
+    }
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<User> getUser(
+        @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(
+            service.findById(id)
+        );
+    }
+}
+
+// streams and lambdas
+List<String> active = users.stream()
+    .filter(User::isActive)
+    .map(User::getName)
+    .sorted()
+    .collect(Collectors.toList());
+
+@FunctionalInterface
+public interface Mapper<T, R> {
+    R map(T value);
+}
+
+Optional<User> maybeUser = 
+    repository.findById(id);
+
+String name = maybeUser
+    .map(User::getName)
+    .orElse("Anonymous");
+
+ExecutorService pool = 
+    Executors.newFixedThreadPool(4);
+
+CompletableFuture.supplyAsync(() -> {
+    return heavyCompute();
+}).thenAccept(System.out::println);
+
+public record Point(int x, int y) {}
+
+String status = switch (code) {
+    case 200 -> "OK";
+    case 404 -> "NotFound";
+    case 500 -> "Error";
+    default -> "Unknown";
+};
+
+if (obj instanceof String s) {
+    System.out.println(s.length());
+}
+
+public class Singleton {
+    private static Singleton instance;
+
+    private Singleton() {}
+
+    public static Singleton getInstance() {
+        if (instance == null) {
+            instance = new Singleton();
+        }
+        return instance;
+    }
+}
+
+BigDecimal price = 
+    new BigDecimal("99.99");
+BigDecimal total = price.multiply(
+    BigDecimal.valueOf(quantity)
+);
+
+try (Connection conn = 
+        dataSource.getConnection()) {
+    PreparedStatement ps = 
+        conn.prepareStatement(sql);
+    ps.execute();
+}
+
+public <T extends Comparable<T>> T max(
+    List<T> items
+) {
+    return items.stream()
+        .max(Comparator.naturalOrder())
+        .orElseThrow();
+}
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+    @Bean
+    public PasswordEncoder encoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
+
+@Test
+void shouldFindUserById() {
+    User user = service.findById(1L);
+    assertThat(user).isNotNull();
+}
+
+log.info("User {} logged in", username);
+log.error("Failed to save", ex);
+
+@Transactional(readOnly = true)
+public List<User> findAll() {
+    return repository.findAll();
+}
+
+@Entity
+@Table(name = "users")
+public class User {
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @Column(nullable = false)
+    private String email;
+}`;
+
+  const lines = JAVA.split('\n');
+  let W = 0, H = 0, dpr = 1;
+  let FONT_SIZE = 13;
+  let LINE_HEIGHT = 20;
+  let numCols = 3;
+  let columns = [];
+
+  function buildColumns(){
+    const narrow = W < 600;
+    FONT_SIZE = narrow ? 10 : 13;
+    LINE_HEIGHT = narrow ? 16 : 20;
+    numCols = W < 500 ? 2 : Math.max(2, Math.min(6, Math.floor(W / 240)));
+
+    const linesPerCol = Math.ceil(lines.length / numCols);
+    columns = [];
+    for (let c = 0; c < numCols; c++){
+      columns.push({
+        lines: lines.slice(c * linesPerCol, (c + 1) * linesPerCol),
+        speed: 0.18 + (c % 3) * 0.14, // 0.18 / 0.32 / 0.46
+      });
+    }
+  }
+
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    buildColumns();
+  }
+
+  let scrollY = window.scrollY || 0;
+  let smoothScroll = scrollY;
+  let mouseX = -9999, mouseY = -9999;
+  let tMouseX = -9999, tMouseY = -9999;
+
+  function onScroll(){ scrollY = window.scrollY || window.pageYOffset || 0; }
+  function onMouseMove(e){ tMouseX = e.clientX; tMouseY = e.clientY; }
+  function onMouseLeave(){ tMouseX = -9999; tMouseY = -9999; }
+  function onTouchMove(e){
+    if (e.touches.length > 0){
+      tMouseX = e.touches[0].clientX;
+      tMouseY = e.touches[0].clientY;
+    }
+  }
+  function onTouchEnd(){ tMouseX = -9999; tMouseY = -9999; }
+
+  function draw(){
+    smoothScroll += (scrollY - smoothScroll) * 0.08;
+    mouseX += (tMouseX - mouseX) * 0.12;
+    mouseY += (tMouseY - mouseY) * 0.12;
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.font = FONT_SIZE + "px 'JetBrains Mono', ui-monospace, monospace";
+    ctx.textBaseline = 'top';
+
+    const colWidth = W / numCols;
+
+    for (let c = 0; c < numCols; c++){
+      const col = columns[c];
+      if (!col || col.lines.length === 0) continue;
+
+      const colX = c * colWidth + 14;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(colX - 8, 0, colWidth - 4, H);
+      ctx.clip();
+
+      const totalLines = col.lines.length;
+      const totalHeight = totalLines * LINE_HEIGHT;
+      const offset = (smoothScroll * col.speed) % totalHeight;
+
+      const firstLine = Math.floor(offset / LINE_HEIGHT) - 1;
+      const lastLine = Math.ceil((offset + H) / LINE_HEIGHT) + 1;
+
+      for (let i = firstLine; i <= lastLine; i++){
+        const wrapped = ((i % totalLines) + totalLines) % totalLines;
+        const y = i * LINE_HEIGHT - offset;
+        if (y < -LINE_HEIGHT || y > H + LINE_HEIGHT) continue;
+        const line = col.lines[wrapped];
+
+        // cursor / touch glow
+        let brightness = 1;
+        if (mouseX > -100){
+          const dx = colX + 90 - mouseX;
+          const dy = y + LINE_HEIGHT / 2 - mouseY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          brightness = 1 + Math.max(0, 1 - dist / 300) * 1.7;
+        }
+
+        const trimmed = line.trim();
+        if (trimmed.startsWith('//')){
+          ctx.fillStyle = 'rgba(106, 153, 85, ' + (0.10 * brightness).toFixed(3) + ')';
+        } else if (trimmed.startsWith('@')){
+          ctx.fillStyle = 'rgba(197, 134, 192, ' + (0.13 * brightness).toFixed(3) + ')';
+        } else if (/\b(public|private|protected|class|interface|void|return|new|static|final|if|else|while|for|extends|implements|import|package|this)\b/.test(line)){
+          ctx.fillStyle = 'rgba(255, 138, 61, ' + (0.17 * brightness).toFixed(3) + ')';
+        } else {
+          ctx.fillStyle = 'rgba(180, 185, 200, ' + (0.12 * brightness).toFixed(3) + ')';
+        }
+
+        ctx.fillText(line, colX, y);
+      }
+
+      ctx.restore();
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('mousemove', onMouseMove);
+  window.addEventListener('mouseleave', onMouseLeave);
+  window.addEventListener('touchmove', onTouchMove, { passive: true });
+  window.addEventListener('touchend', onTouchEnd);
+  window.addEventListener('touchcancel', onTouchEnd);
+
+  resize();
+  draw();
+})();
+
+/* ============================================================
+   2. MAIN SITE ANIMATIONS (GSAP + Lenis)
+   ============================================================ */
+const lenis = new Lenis({ duration: 1.15, smoothWheel: true });
+gsap.ticker.add((t) => lenis.raf(t * 1000));
+gsap.ticker.lagSmoothing(0);
+lenis.on('scroll', ScrollTrigger.update);
+gsap.registerPlugin(ScrollTrigger);
+
+// Nav state
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// Reveal on scroll
+document.querySelectorAll('.reveal').forEach((el) => {
+  ScrollTrigger.create({
+    trigger: el,
+    start: 'top 85%',
+    onEnter: () => el.classList.add('in'),
+  });
+});
+
+// Hero parallax
+gsap.to('#heroCard', {
+  y: -80, rotateZ: -2,
+  scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1 }
+});
+
+// Count up metrics
+document.querySelectorAll('[data-count]').forEach(el => {
+  const target = +el.dataset.count;
+  const suffix = el.dataset.suffix || '';
+  ScrollTrigger.create({
+    trigger: el, start: 'top 90%', once: true,
+    onEnter: () => {
+      gsap.to({v:0}, {
+        v: target, duration: 1.6, ease: 'power2.out',
+        onUpdate: function() {
+          el.textContent = Math.round(this.targets()[0].v) + suffix;
+        }
+      });
+    }
+  });
+});
+
+// Sticky approach timeline
+const items = gsap.utils.toArray('.approach-item');
+const approachTl = gsap.timeline({
+  scrollTrigger: {
+    trigger: '.approach',
+    start: 'top top',
+    end: 'bottom bottom',
+    scrub: 1,
+  }
+});
+
+items.forEach((item, i) => {
+  approachTl.to(item, { opacity: 1, y: 0, scale: 1, duration: 0.3 }, i);
+  if (i < items.length - 1) {
+    approachTl.to(item, { opacity: 0, y: -40, scale: 0.96, duration: 0.3 }, i + 0.7);
+  }
+});
+
+// Approach progress bars
+[document.getElementById('prog1'),
+ document.getElementById('prog2'),
+ document.getElementById('prog3')].forEach((p, i) => {
+  if (!p) return;
+  ScrollTrigger.create({
+    trigger: '.approach',
+    start: () => `top+=${i * 100}% top`,
+    end: () => `top+=${(i + 1) * 100}% top`,
+    scrub: true,
+    onUpdate: (self) => {
+      p.style.background = `linear-gradient(90deg, var(--accent) ${self.progress * 100}%, var(--surface-2) ${self.progress * 100}%)`;
+    }
+  });
+});
+
+// Timeline line drawing
+const timelineLine = document.getElementById('timelineLine');
+const timeline = document.getElementById('timeline');
+if (timelineLine && timeline){
+  ScrollTrigger.create({
+    trigger: timeline, start: 'top 70%', end: 'bottom 70%', scrub: true,
+    onUpdate: (self) => {
+      timelineLine.style.height = (self.progress * 100) + '%';
+    }
+  });
+}
+
+document.querySelectorAll('.t-item').forEach(item => {
+  ScrollTrigger.create({
+    trigger: item, start: 'top 60%',
+    onEnter: () => item.classList.add('active'),
+    onLeaveBack: () => item.classList.remove('active'),
+  });
+});
+
+// FAQ accordion
+document.querySelectorAll('.faq-item').forEach(item => {
+  item.addEventListener('click', () => item.classList.toggle('open'));
+});
+</script>
+
+</body>
+</html>
